@@ -1,6 +1,7 @@
 package net.kyle.jukeboxplus;
 
 import net.fabricmc.api.ModInitializer;
+import net.kyle.jukeboxplus.block.ModBlocks;
 import net.kyle.jukeboxplus.item.ModItemGroups;
 import net.kyle.jukeboxplus.item.ModItems;
 
@@ -16,5 +17,6 @@ public class JukeboxPlus implements ModInitializer {
 
 		ModItems.registerModItems();
 		ModItemGroups.registerItemGroups();
+		ModBlocks.registerModBlocks();
 	}
 }

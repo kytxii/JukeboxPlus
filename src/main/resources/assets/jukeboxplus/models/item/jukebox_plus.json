@@ -1,6 +1,0 @@
-{
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "jukeboxplus:item/jukebox_plus_item"
-  }
-}

@@ -2,6 +2,7 @@ package net.kyle.jukeboxplus.item;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.kyle.jukeboxplus.JukeboxPlus;
+import net.kyle.jukeboxplus.block.ModBlocks;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -18,8 +19,8 @@ public class ModItemGroups {
             .displayName(Text.translatable("itemgroup.jukebox_plus"))
             .icon(() -> new ItemStack(ModItems.JUKEBOX_PLUS))
             .entries((displayContext, entries) -> {
-                // Jukebox+
-                entries.add(ModItems.JUKEBOX_PLUS);
+                // Jukebox+ block
+                entries.add(ModBlocks.JUKEBOX_PLUS_BLOCK);
 
                 // Vanilla (minecraft:music_discs)
                 Registries.ITEM.getEntryList(ItemTags.MUSIC_DISCS)
