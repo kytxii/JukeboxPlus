@@ -1,9 +1,9 @@
 {
   "variants": {
-    "half=lower": {
-      "model": "jukeboxplus:block/jukebox_plus_16x_bottom"
-    },
     "half=upper": {
+      "model": "jukeboxplus:block/jukebox_plus_16x_top"
+    },
+    "half=lower": {
       "model": "jukeboxplus:block/jukebox_plus_16x_top"
     }
   }

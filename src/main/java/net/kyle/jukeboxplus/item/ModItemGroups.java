@@ -20,7 +20,7 @@ public class ModItemGroups {
             .icon(() -> new ItemStack(ModItems.JUKEBOX_PLUS))
             .entries((displayContext, entries) -> {
                 // Jukebox+ block
-                entries.add(ModBlocks.JUKEBOX_PLUS_BLOCK);
+                entries.add(ModBlocks.JUKEBOX_PLUS);
 
                 // Vanilla (minecraft:music_discs)
                 Registries.ITEM.getEntryList(ItemTags.MUSIC_DISCS)
