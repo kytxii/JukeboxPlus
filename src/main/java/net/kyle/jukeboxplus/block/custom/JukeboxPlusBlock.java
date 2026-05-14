@@ -16,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
 
 
 public class JukeboxPlusBlock extends BlockWithEntity {
@@ -32,9 +33,16 @@ public class JukeboxPlusBlock extends BlockWithEntity {
     }
 
     @Override
+    public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
+        return world.getBlockState(pos.up()).isAir();
+    }
+
+    @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
         if (!world.isClient()) {
-            world.setBlockState(pos.up(), ModBlocks.JUKEBOX_PLUS_TOP.getDefaultState(), Block.NOTIFY_ALL);
+            if (canPlaceAt(state, world, pos)) {
+                world.setBlockState(pos.up(), ModBlocks.JUKEBOX_PLUS_TOP.getDefaultState(), Block.NOTIFY_ALL);
+            }
         }
         super.onPlaced(world, pos, state, placer, itemStack);
     }
