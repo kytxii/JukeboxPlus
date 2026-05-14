@@ -8,9 +8,11 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.kyle.jukeboxplus.block.ModBlocks;
+import net.kyle.jukeboxplus.block.entity.JukeboxPlusBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.entity.player.PlayerEntity;
 
@@ -42,12 +44,19 @@ public class JukeboxPlusTopBlock extends Block {
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
+    BlockHitResult hit) {
         BlockPos bottomPos = pos.down();
         BlockState bottomState = world.getBlockState(bottomPos);
         if (!bottomState.isOf(ModBlocks.JUKEBOX_PLUS)) {
             return ActionResult.PASS;
         }
-        return bottomState.onUse(world, player, hand, hit);
+        if (!world.isClient()) {
+            BlockEntity blockEntity = world.getBlockEntity(bottomPos);
+            if (blockEntity instanceof JukeboxPlusBlockEntity jukeboxEntity) {
+                player.openHandledScreen(jukeboxEntity);
+            }
+        }
+        return ActionResult.SUCCESS;
     }
 }
