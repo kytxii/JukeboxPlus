@@ -8,14 +8,16 @@ import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.kyle.jukeboxplus.screen.JukeboxPlusScreenHandler;
 import net.minecraft.text.Text;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 
-public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, NamedScreenHandlerFactory {
+public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, ExtendedScreenHandlerFactory {
     private final DefaultedList<ItemStack> items = DefaultedList.ofSize(9, ItemStack.EMPTY);
 
     private int currentSlot = 0;
@@ -32,6 +34,16 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Na
 
     public JukeboxPlusBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.JUKEBOX_PLUS_BLOCK_ENTITY, pos, state);
+    }
+
+    @Override
+    public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
+        buf.writeBlockPos(this.pos);
+        buf.writeInt(currentSlot);
+        buf.writeInt(ticksPlayed);
+        buf.writeInt(discDurationTicks);
+        buf.writeBoolean(isPlaying);
+        buf.writeEnumConstant(loopMode);
     }
 
     @Override
