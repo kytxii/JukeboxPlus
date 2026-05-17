@@ -1,5 +1,7 @@
 package net.kyle.jukeboxplus.block.entity;
 
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.kyle.jukeboxplus.screen.JukeboxPlusScreenHandler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -9,13 +11,13 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.kyle.jukeboxplus.screen.JukeboxPlusScreenHandler;
 import net.minecraft.text.Text;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, ExtendedScreenHandlerFactory {
     private final DefaultedList<ItemStack> items = DefaultedList.ofSize(9, ItemStack.EMPTY);
@@ -26,11 +28,28 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
     private boolean isPlaying = false;
     private LoopMode loopMode = LoopMode.OFF;
 
-    public enum LoopMode { 
-        OFF, 
-        LOOP_ONE, 
-        LOOP_ALL 
-    }
+    public enum LoopMode { OFF, LOOP_ONE, LOOP_ALL }
+
+    public final PropertyDelegate propertyDelegate = new PropertyDelegate() {
+        @Override public int get(int index) {
+            return switch (index) {
+                case 0 -> currentSlot;
+                case 1 -> ticksPlayed;
+                case 2 -> discDurationTicks;
+                case 3 -> isPlaying ? 1 : 0;
+                default -> 0;
+            };
+        }
+        @Override public void set(int index, int value) {
+            switch (index) {
+                case 0 -> currentSlot = value;
+                case 1 -> ticksPlayed = value;
+                case 2 -> discDurationTicks = value;
+                case 3 -> isPlaying = value != 0;
+            }
+        }
+        @Override public int size() { return 4; }
+    };
 
     public JukeboxPlusBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.JUKEBOX_PLUS_BLOCK_ENTITY, pos, state);
@@ -39,53 +58,6 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
     @Override
     public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
         buf.writeBlockPos(this.pos);
-        buf.writeInt(currentSlot);
-        buf.writeInt(ticksPlayed);
-        buf.writeInt(discDurationTicks);
-        buf.writeBoolean(isPlaying);
-        buf.writeEnumConstant(loopMode);
-    }
-
-    @Override
-    public int size() {
-        return 9;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return items.stream().allMatch(ItemStack::isEmpty);
-    }
-
-    @Override
-    public ItemStack getStack(int slot) {
-        return items.get(slot);
-    }
-
-    @Override
-    public ItemStack removeStack(int slot, int amount) {
-        return Inventories.splitStack(items, slot, amount);
-    }
-
-    @Override
-    public ItemStack removeStack(int slot) {
-        return Inventories.removeStack(items, slot);
-    }
-
-    @Override
-    public void setStack(int slot, ItemStack stack) {
-        items.set(slot, stack);
-        markDirty();
-    }
-
-    @Override
-    public boolean canPlayerUse(PlayerEntity player) {
-        return true;
-    }
-
-    @Override
-    public void clear() {
-        items.replaceAll(ignored -> ItemStack.EMPTY);
-        markDirty();
     }
 
     @Override
@@ -95,54 +67,62 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
 
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-        return new JukeboxPlusScreenHandler(syncId, playerInventory, this);
+        return new JukeboxPlusScreenHandler(syncId, playerInventory, this, this.propertyDelegate);
     }
 
-    // NBT
+    @Override public int size() { return 9; }
+    @Override public boolean isEmpty() { return items.stream().allMatch(ItemStack::isEmpty); }
+    @Override public ItemStack getStack(int slot) { return items.get(slot); }
+    @Override public ItemStack removeStack(int slot, int amount) { return Inventories.splitStack(items, slot, amount); }
+    @Override public ItemStack removeStack(int slot) { return Inventories.removeStack(items, slot); }
+    @Override public void setStack(int slot, ItemStack stack) { items.set(slot, stack); markDirty(); }
+    @Override public boolean canPlayerUse(PlayerEntity player) { return true; }
+    @Override public void clear() { items.replaceAll(ignored -> ItemStack.EMPTY); markDirty(); }
+
     @Override
     public void writeNbt(NbtCompound nbt) {
         Inventories.writeNbt(nbt, items);
-
         nbt.putInt("currentSlot", currentSlot);
         nbt.putInt("ticksPlayed", ticksPlayed);
         nbt.putInt("discDurationTicks", discDurationTicks);
         nbt.putBoolean("isPlaying", isPlaying);
         nbt.putString("loopMode", loopMode.name());
-
         super.writeNbt(nbt);
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
-
         Inventories.readNbt(nbt, items);
-
         currentSlot = nbt.getInt("currentSlot");
         ticksPlayed = nbt.getInt("ticksPlayed");
         discDurationTicks = nbt.getInt("discDurationTicks");
         isPlaying = nbt.getBoolean("isPlaying");
-
-        try {
-            loopMode = LoopMode.valueOf(nbt.getString("loopMode"));
-        } catch (IllegalArgumentException e) {
-            loopMode = LoopMode.OFF;
-        }
+        try { loopMode = LoopMode.valueOf(nbt.getString("loopMode")); }
+        catch (IllegalArgumentException e) { loopMode = LoopMode.OFF; }
+        isPlaying = false;
+        ticksPlayed = 0;
     }
 
-    // Getters/setters
-    public int getCurrentSlot() { return currentSlot; }
-    public void setCurrentSlot(int slot) {currentSlot = slot; markDirty(); }
+    public void tick(World world, BlockPos pos, BlockState state) {
+        if (!isPlaying) return;
 
+        ticksPlayed++;
+        if (discDurationTicks > 0 && ticksPlayed >= discDurationTicks) {
+            isPlaying = false;
+            ticksPlayed = 0;
+        }
+        markDirty();
+    }
+
+    public int getCurrentSlot() { return currentSlot; }
+    public void setCurrentSlot(int slot) { currentSlot = slot; markDirty(); }
     public int getTicksPlayed() { return ticksPlayed; }
     public void setTicksPlayed(int ticks) { ticksPlayed = ticks; markDirty(); }
-
     public int getDiscDurationTicks() { return discDurationTicks; }
     public void setDiscDurationTicks(int ticks) { discDurationTicks = ticks; markDirty(); }
-
     public boolean isPlaying() { return isPlaying; }
     public void setPlaying(boolean playing) { isPlaying = playing; markDirty(); }
-
     public LoopMode getLoopMode() { return loopMode; }
     public void setLoopMode(LoopMode mode) { loopMode = mode; markDirty(); }
 }

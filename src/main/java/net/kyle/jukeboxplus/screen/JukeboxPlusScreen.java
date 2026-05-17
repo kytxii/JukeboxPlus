@@ -1,11 +1,19 @@
 package net.kyle.jukeboxplus.screen;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.util.math.MatrixStack;
+import net.kyle.jukeboxplus.util.DiscDurationUtil;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.item.MusicDiscItem;
 
 public class JukeboxPlusScreen extends HandledScreen<JukeboxPlusScreenHandler> {
     private ButtonWidget playButton;
@@ -27,7 +35,18 @@ public class JukeboxPlusScreen extends HandledScreen<JukeboxPlusScreenHandler> {
     protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
         int x = (width - backgroundWidth) / 2;
         int y = (height - backgroundHeight) / 2;
+
         context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight);
+
+        // Progress bar
+        int maxWidth = 107;
+        int barX = x + 55;
+        int barY = y + 21;
+        int ticks = handler.getTicksPlayed();
+        int duration = handler.getDiscDurationTicks(); 
+        int filled = (duration > 0) ? (ticks * maxWidth / duration) : 0;
+        context.fill(barX, barY , barX + filled, barY + 4, 0xFFC6C6C6);
+        context.fill(barX + filled, barY, barX + maxWidth, barY + 4, 0xFF222222);
     }
 
     @Override
@@ -37,7 +56,24 @@ public class JukeboxPlusScreen extends HandledScreen<JukeboxPlusScreenHandler> {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        int x = (width - backgroundWidth) / 2;
+        int y = (height - backgroundHeight) / 2;
+
         renderBackground(context);
+
+        int discX = x + 10;
+        int discY = y + 16;
+        ItemStack disc = handler.getSlot(handler.getCurrentSlot()).getStack();
+
+        if (!disc.isEmpty()) {
+            MatrixStack matrices = context.getMatrices();
+            matrices.push();
+            matrices.translate(discX, discY, 0);
+            matrices.scale(2.0f, 2.0f, 1.0f); 
+            context.drawItem(disc, 0, 0);
+            matrices.pop();
+        }
+
         super.render(context, mouseX, mouseY, delta);
         drawMouseoverTooltip(context, mouseX, mouseY);
     }
@@ -51,24 +87,59 @@ public class JukeboxPlusScreen extends HandledScreen<JukeboxPlusScreenHandler> {
         int x = (width - backgroundWidth) / 2;
         int y = (height - backgroundHeight) / 2;
 
-        prevButton = addDrawableChild(ButtonWidget.builder(
-            Text.literal("<"), btn -> { /* TODO: prev packet */ })
-            .dimensions(x + 55, y + 30, 16, 16).build());
+        prevButton = addDrawableChild(ButtonWidget.builder(Text.literal("<"), btn -> {
+            int nextSlot = (handler.getCurrentSlot() + 8) % 9;
+            ItemStack disc = handler.getSlot(nextSlot).getStack();
+            int duration = 0;
+            if (disc.getItem() instanceof MusicDiscItem musicDisc)
+                duration = DiscDurationUtil.getDurationTicks(musicDisc.getSound(), MinecraftClient.getInstance().getResourceManager());
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeBlockPos(handler.getBlockPos());
+            buf.writeInt(duration);
+            ClientPlayNetworking.send(ModPackets.PREV, buf);
+        }).dimensions(x + 55, y + 30, 16, 16).build());
 
-        playButton = addDrawableChild(ButtonWidget.builder(
-            Text.literal("▶"), btn -> { /* TODO: play packet */ })
-            .dimensions(x + 75, y + 30, 16, 16).build());
+        playButton = addDrawableChild(ButtonWidget.builder(Text.literal("▶"), btn -> {
+            ItemStack disc = handler.getSlot(handler.getCurrentSlot()).getStack();
+            int duration = 0;
+            if (disc.getItem() instanceof MusicDiscItem musicDisc) {
+                duration = DiscDurationUtil.getDurationTicks(
+                    musicDisc.getSound(),
+                    MinecraftClient.getInstance().getResourceManager()
+                );
+            }
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeBlockPos(handler.getBlockPos());
+            buf.writeInt(duration);
+            ClientPlayNetworking.send(ModPackets.PLAY, buf);
+        }).dimensions(x + 75, y + 30, 16, 16).build());
 
         stopButton = addDrawableChild(ButtonWidget.builder(
-            Text.literal("■"), btn -> { /* TODO: stop packet */ })
+            Text.literal("■"), btn -> { 
+                PacketByteBuf buf = PacketByteBufs.create();
+                buf.writeBlockPos(handler.getBlockPos());
+                ClientPlayNetworking.send(ModPackets.STOP, buf);
+             })
             .dimensions(x + 95, y + 30, 16, 16).build());
 
-        nextButton = addDrawableChild(ButtonWidget.builder(
-            Text.literal(">"), btn -> { /* TODO: next packet */ })
-            .dimensions(x + 115, y + 30, 16, 16).build());
+        nextButton = addDrawableChild(ButtonWidget.builder(Text.literal(">"), btn -> {
+            int nextSlot = (handler.getCurrentSlot() + 1) % 9;
+            ItemStack disc = handler.getSlot(nextSlot).getStack();
+            int duration = 0;
+            if (disc.getItem() instanceof MusicDiscItem musicDisc)
+                duration = DiscDurationUtil.getDurationTicks(musicDisc.getSound(), MinecraftClient.getInstance().getResourceManager());
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeBlockPos(handler.getBlockPos());
+            buf.writeInt(duration);
+            ClientPlayNetworking.send(ModPackets.NEXT, buf);
+        }).dimensions(x + 115, y + 30, 16, 16).build());
 
         loopButton = addDrawableChild(ButtonWidget.builder(
-            Text.literal("L"), btn -> { /* TODO: cycle loop */ })
+            Text.literal("L"), btn -> { 
+                PacketByteBuf buf = PacketByteBufs.create();
+                buf.writeBlockPos(handler.getBlockPos());
+                ClientPlayNetworking.send(ModPackets.LOOP_TOGGLE, buf);
+             })
             .dimensions(x + 146, y + 30, 16, 16).build());
     }
 }

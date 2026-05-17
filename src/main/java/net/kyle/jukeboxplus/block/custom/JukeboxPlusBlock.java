@@ -8,7 +8,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.kyle.jukeboxplus.block.entity.JukeboxPlusBlockEntity;
+import net.kyle.jukeboxplus.block.entity.ModBlockEntities;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -20,6 +23,8 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 
 public class JukeboxPlusBlock extends BlockWithEntity {
 
@@ -53,6 +58,8 @@ public class JukeboxPlusBlock extends BlockWithEntity {
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         if (!world.isClient()) {
             BlockPos topPos = pos.up();
+            world.syncWorldEvent(1011, pos, 0); // stop current
+            
             if (world.getBlockState(topPos).isOf(ModBlocks.JUKEBOX_PLUS_TOP)) {
                 world.setBlockState(topPos, Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL | Block.SKIP_DROPS);
             }
@@ -71,8 +78,7 @@ public class JukeboxPlusBlock extends BlockWithEntity {
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
-    BlockHitResult hit) {
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (!world.isClient()) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof JukeboxPlusBlockEntity jukeboxEntity) {
@@ -80,5 +86,12 @@ public class JukeboxPlusBlock extends BlockWithEntity {
             }
         }
         return ActionResult.SUCCESS;
-  }
+    }
+
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        if (world.isClient) return null;
+        return checkType(type, ModBlockEntities.JUKEBOX_PLUS_BLOCK_ENTITY,
+            (w, pos, s, be) -> be.tick(w, pos, s));
+    }
 }
