@@ -2,13 +2,16 @@ package net.kyle.jukeboxplus.block.entity;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.kyle.jukeboxplus.screen.JukeboxPlusScreenHandler;
+import net.kyle.jukeboxplus.util.DiscDurationUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.MusicDiscItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.PropertyDelegate;
@@ -37,6 +40,7 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
                 case 1 -> ticksPlayed;
                 case 2 -> discDurationTicks;
                 case 3 -> isPlaying ? 1 : 0;
+                case 4 -> loopMode.ordinal();
                 default -> 0;
             };
         }
@@ -46,9 +50,10 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
                 case 1 -> ticksPlayed = value;
                 case 2 -> discDurationTicks = value;
                 case 3 -> isPlaying = value != 0;
+                case 4 -> loopMode = LoopMode.values()[value];
             }
         }
-        @Override public int size() { return 4; }
+        @Override public int size() { return 5; }
     };
 
     public JukeboxPlusBlockEntity(BlockPos pos, BlockState state) {
@@ -108,11 +113,53 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
         if (!isPlaying) return;
 
         ticksPlayed++;
-        if (discDurationTicks > 0 && ticksPlayed >= discDurationTicks) {
-            isPlaying = false;
-            ticksPlayed = 0;
+        if (discDurationTicks <= 0 || ticksPlayed < discDurationTicks) {
+            markDirty();
+            return;
+        }
+
+        world.syncWorldEvent(1011, pos, 0); // stop current sound
+
+        switch (loopMode) {
+            case LOOP_ONE -> {
+                ticksPlayed = 0;
+                ItemStack disc = items.get(currentSlot);
+                if (disc.getItem() instanceof MusicDiscItem)
+                    world.syncWorldEvent(1010, pos, Item.getRawId(disc.getItem()));
+                else
+                    isPlaying = false;
+            }
+            case LOOP_ALL -> {
+                int next = findNextFilledSlot(currentSlot);
+                if (next == -1) {
+                    isPlaying = false;
+                    ticksPlayed = 0;
+                } else {
+                    currentSlot = next;
+                    ticksPlayed = 0;
+                    ItemStack disc = items.get(currentSlot);
+                    if (disc.getItem() instanceof MusicDiscItem musicDisc) {
+                        discDurationTicks = DiscDurationUtil.getDurationTicks(musicDisc.getSound(), world.getServer());
+                        world.syncWorldEvent(1010, pos, Item.getRawId(disc.getItem()));
+                    } else {
+                        isPlaying = false;
+                    }
+                }
+            }
+            case OFF -> {
+                isPlaying = false;
+                ticksPlayed = 0;
+            }
         }
         markDirty();
+    }
+
+    private int findNextFilledSlot(int from) {
+        for (int i = 1; i <= 9; i++) {
+            int candidate = (from + i) % 9;
+            if (!items.get(candidate).isEmpty()) return candidate;
+        }
+        return -1;
     }
 
     public int getCurrentSlot() { return currentSlot; }

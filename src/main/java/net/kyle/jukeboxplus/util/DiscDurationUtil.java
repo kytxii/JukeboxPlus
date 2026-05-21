@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.Sound;
 import net.minecraft.client.sound.WeightedSoundSet;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 
@@ -72,5 +73,27 @@ public class DiscDurationUtil {
         long r = 0;
         for (int i = 0; i < 8; i++) r |= ((long)(d[o+i]&0xFF))<<(8*i);
         return r;
+    }
+
+    public static int getDurationTicks(SoundEvent soundEvent, MinecraftServer server) {
+        Identifier eventId = soundEvent.getId();
+        if (cache.containsKey(eventId)) return cache.get(eventId);
+
+        Identifier fileId = new Identifier(
+            eventId.getNamespace(),
+            "sounds/" + eventId.getPath().replace('.', '/') + ".ogg"
+        );
+
+        try (InputStream stream = server.getResourceManager().getResource(fileId).get().getInputStream()) {
+            byte[] data = stream.readAllBytes();
+            int sampleRate = readSampleRate(data);
+            long granule = readLastGranule(data);
+            if (sampleRate <= 0 || granule <= 0) return 0;
+            int ticks = (int)(granule * 20L / sampleRate);
+            cache.put(eventId, ticks);
+            return ticks;
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }

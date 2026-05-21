@@ -1,5 +1,6 @@
 package net.kyle.jukeboxplus.screen;
 
+import net.kyle.jukeboxplus.block.entity.JukeboxPlusBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -20,7 +21,7 @@ public class JukeboxPlusScreenHandler extends ScreenHandler {
 
     // Client-side
     public JukeboxPlusScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
-        this(syncId, playerInventory, new SimpleInventory(9), new ArrayPropertyDelegate(4));
+        this(syncId, playerInventory, new SimpleInventory(9), new ArrayPropertyDelegate(5));
         this.blockPos = buf.readBlockPos();
     }
 
@@ -68,6 +69,9 @@ public class JukeboxPlusScreenHandler extends ScreenHandler {
         return newStack;
     }
 
+    public JukeboxPlusBlockEntity.LoopMode getLoopMode() {
+        return JukeboxPlusBlockEntity.LoopMode.values()[propertyDelegate.get(4)];
+    }
     
     public BlockPos getBlockPos()        { return blockPos; }
     public int getCurrentSlot()          { return propertyDelegate.get(0); }

@@ -69,10 +69,17 @@ public class JukeboxPlusScreen extends HandledScreen<JukeboxPlusScreenHandler> {
             MatrixStack matrices = context.getMatrices();
             matrices.push();
             matrices.translate(discX, discY, 0);
-            matrices.scale(2.0f, 2.0f, 1.0f); 
+            matrices.scale(2.0f, 2.0f, 1.0f);
             context.drawItem(disc, 0, 0);
             matrices.pop();
         }
+
+        String loopIcon = switch (handler.getLoopMode()) {
+            case OFF      -> "\u2192";
+            case LOOP_ONE -> "\u21BA";
+            case LOOP_ALL -> "\u221E";
+        };
+        loopButton.setMessage(Text.literal(loopIcon));
 
         super.render(context, mouseX, mouseY, delta);
         drawMouseoverTooltip(context, mouseX, mouseY);
