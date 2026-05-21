@@ -7,6 +7,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.util.math.Direction;
 import net.kyle.jukeboxplus.block.ModBlocks;
 import net.kyle.jukeboxplus.block.entity.JukeboxPlusBlockEntity;
 import net.minecraft.block.Block;
@@ -20,12 +21,13 @@ public class JukeboxPlusTopBlock extends Block {
     public JukeboxPlusTopBlock(Settings settings) {
         super(settings);
         setDefaultState(getStateManager().getDefaultState()
-              .with(Properties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER));
+            .with(Properties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER)
+            .with(Properties.HORIZONTAL_FACING, Direction.NORTH));
     }
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(Properties.DOUBLE_BLOCK_HALF);
+        builder.add(Properties.DOUBLE_BLOCK_HALF, Properties.HORIZONTAL_FACING);
     }
 
     @Override

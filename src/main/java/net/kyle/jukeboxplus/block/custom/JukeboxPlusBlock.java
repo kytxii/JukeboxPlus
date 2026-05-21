@@ -15,28 +15,29 @@ import net.kyle.jukeboxplus.block.entity.ModBlockEntities;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
 
 public class JukeboxPlusBlock extends BlockWithEntity {
 
     public JukeboxPlusBlock(Settings settings) {
         super(settings);
         setDefaultState(getStateManager().getDefaultState()
-        .with(Properties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER));
+        .with(Properties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER)
+        .with(Properties.HORIZONTAL_FACING, Direction.NORTH));
     }
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(Properties.DOUBLE_BLOCK_HALF);
+        builder.add(Properties.DOUBLE_BLOCK_HALF, Properties.HORIZONTAL_FACING);
     }
 
     @Override
@@ -48,7 +49,12 @@ public class JukeboxPlusBlock extends BlockWithEntity {
     public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
         if (!world.isClient()) {
             if (canPlaceAt(state, world, pos)) {
-                world.setBlockState(pos.up(), ModBlocks.JUKEBOX_PLUS_TOP.getDefaultState(), Block.NOTIFY_ALL);
+                world.setBlockState(
+                    pos.up(),
+                    ModBlocks.JUKEBOX_PLUS_TOP.getDefaultState()
+                        .with(Properties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER)
+                        .with(Properties.HORIZONTAL_FACING, state.get(Properties.HORIZONTAL_FACING)),
+                    Block.NOTIFY_ALL);
             }
         }
         super.onPlaced(world, pos, state, placer, itemStack);
@@ -93,5 +99,12 @@ public class JukeboxPlusBlock extends BlockWithEntity {
         if (world.isClient) return null;
         return checkType(type, ModBlockEntities.JUKEBOX_PLUS_BLOCK_ENTITY,
             (w, pos, s, be) -> be.tick(w, pos, s));
+    }
+
+    @Override
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
+        return getDefaultState()
+            .with(Properties.HORIZONTAL_FACING, ctx.getHorizontalPlayerFacing().getOpposite())
+            .with(Properties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER);
     }
 }
