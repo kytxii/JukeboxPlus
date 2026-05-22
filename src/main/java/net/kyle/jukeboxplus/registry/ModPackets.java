@@ -1,4 +1,4 @@
-package net.kyle.jukeboxplus.screen;
+package net.kyle.jukeboxplus.registry;
 
 import net.minecraft.util.Identifier;
 

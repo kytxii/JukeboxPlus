@@ -1,6 +1,7 @@
 package net.kyle.jukeboxplus.screen;
 
 import net.kyle.jukeboxplus.block.entity.JukeboxPlusBlockEntity;
+import net.kyle.jukeboxplus.registry.ModScreenHandlers;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;

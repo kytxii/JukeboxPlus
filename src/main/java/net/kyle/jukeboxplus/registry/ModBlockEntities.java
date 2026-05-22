@@ -1,8 +1,8 @@
-package net.kyle.jukeboxplus.block.entity;
+package net.kyle.jukeboxplus.registry;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.kyle.jukeboxplus.JukeboxPlus;
-import net.kyle.jukeboxplus.block.ModBlocks;
+import net.kyle.jukeboxplus.block.entity.JukeboxPlusBlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;

@@ -1,5 +1,6 @@
-package net.kyle.jukeboxplus.screen;
+package net.kyle.jukeboxplus.registry;
 
+import net.kyle.jukeboxplus.screen.JukeboxPlusScreenHandler;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;

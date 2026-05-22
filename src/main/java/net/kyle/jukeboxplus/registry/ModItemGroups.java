@@ -1,8 +1,7 @@
-package net.kyle.jukeboxplus.item;
+package net.kyle.jukeboxplus.registry;
 
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.kyle.jukeboxplus.JukeboxPlus;
-import net.kyle.jukeboxplus.block.ModBlocks;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;

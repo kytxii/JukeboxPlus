@@ -1,4 +1,4 @@
-package net.kyle.jukeboxplus.item;
+package net.kyle.jukeboxplus.registry;
 
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;

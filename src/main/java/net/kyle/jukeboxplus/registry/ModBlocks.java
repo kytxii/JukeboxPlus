@@ -1,10 +1,10 @@
-package net.kyle.jukeboxplus.block;
+package net.kyle.jukeboxplus.registry;
 
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.kyle.jukeboxplus.JukeboxPlus;
-import net.kyle.jukeboxplus.block.custom.JukeboxPlusBlock;
-import net.kyle.jukeboxplus.block.custom.JukeboxPlusTopBlock;
+import net.kyle.jukeboxplus.block.JukeboxPlusBlock;
+import net.kyle.jukeboxplus.block.JukeboxPlusTopBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.BlockItem;
