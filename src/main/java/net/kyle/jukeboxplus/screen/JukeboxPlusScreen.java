@@ -48,6 +48,12 @@ public class JukeboxPlusScreen extends HandledScreen<JukeboxPlusScreenHandler> {
         int filled = (duration > 0) ? (ticks * maxWidth / duration) : 0;
         context.fill(barX, barY , barX + filled, barY + 4, 0xFFC6C6C6);
         context.fill(barX + filled, barY, barX + maxWidth, barY + 4, 0xFF222222);
+
+        // Highlight current slot
+        int currentSlot = handler.getCurrentSlot();
+        int slotX = x + 8 + currentSlot * 18;
+        int slotY = y + 55;
+        context.fill(slotX, slotY, slotX + 16, slotY + 16, 0x44AAFFAA);
     }
 
     @Override

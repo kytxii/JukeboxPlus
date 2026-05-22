@@ -1,5 +1,6 @@
 package net.kyle.jukeboxplus.block.entity;
 
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.kyle.jukeboxplus.registry.ModBlockEntities;
 import net.kyle.jukeboxplus.screen.JukeboxPlusScreenHandler;
@@ -21,6 +22,7 @@ import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -82,11 +84,11 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
     @Override public int size() { return 9; }
     @Override public boolean isEmpty() { return items.stream().allMatch(ItemStack::isEmpty); }
     @Override public ItemStack getStack(int slot) { return items.get(slot); }
-    @Override public ItemStack removeStack(int slot, int amount) { return Inventories.splitStack(items, slot, amount); }
-    @Override public ItemStack removeStack(int slot) { return Inventories.removeStack(items, slot); }
-    @Override public void setStack(int slot, ItemStack stack) { items.set(slot, stack); markDirty(); if (world != null) world.updateListeners(pos, getCachedState(), getCachedState(), 3);}
+    @Override public ItemStack removeStack(int slot, int amount) { ItemStack result = Inventories.splitStack(items, slot, amount); markDirty(); return result; }
+    @Override public ItemStack removeStack(int slot) {  ItemStack result = Inventories.removeStack(items, slot); markDirty(); return result; }
+    @Override public void setStack(int slot, ItemStack stack) { items.set(slot, stack); markDirty(); }
     @Override public boolean canPlayerUse(PlayerEntity player) { return true; }
-    @Override public void clear() { items.replaceAll(ignored -> ItemStack.EMPTY); markDirty(); if (world != null) world.updateListeners(pos, getCachedState(), getCachedState(), 3);}
+    @Override public void clear() { items.replaceAll(ignored -> ItemStack.EMPTY); markDirty(); }
 
     @Override
     public void writeNbt(NbtCompound nbt) {
@@ -102,6 +104,7 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
     @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
+        items.replaceAll(ignored -> ItemStack.EMPTY); // clear stale items first
         Inventories.readNbt(nbt, items);
         currentSlot = nbt.getInt("currentSlot");
         ticksPlayed = nbt.getInt("ticksPlayed");
@@ -123,12 +126,30 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
         return createNbt();
     }
 
+    @Override
+    public void markDirty() {
+        super.markDirty();
+        if (world instanceof ServerWorld serverWorld) {
+            Packet<?> packet = toUpdatePacket();
+            if (packet != null) {
+                PlayerLookup.tracking(this).forEach(p -> p.networkHandler.sendPacket(packet));
+            }
+        }
+    }
+
     public void tick(World world, BlockPos pos, BlockState state) {
-        if (!isPlaying) return;
+        if (!isPlaying)     return;
+
+        if (isPlaying && items.get(currentSlot).isEmpty()) {
+            world.syncWorldEvent(1011, pos, 0);
+            isPlaying = false;
+            ticksPlayed = 0;
+            markDirty();
+            return;
+        }
 
         ticksPlayed++;
         if (discDurationTicks <= 0 || ticksPlayed < discDurationTicks) {
-            markDirty();
             return;
         }
 
