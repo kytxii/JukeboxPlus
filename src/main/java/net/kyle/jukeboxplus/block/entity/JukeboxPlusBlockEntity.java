@@ -1,6 +1,7 @@
 package net.kyle.jukeboxplus.block.entity;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.kyle.jukeboxplus.registry.ModBlockEntities;
 import net.kyle.jukeboxplus.screen.JukeboxPlusScreenHandler;
 import net.kyle.jukeboxplus.util.DiscDurationUtil;
 import net.minecraft.block.BlockState;
@@ -14,6 +15,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.MusicDiscItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -80,9 +84,9 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
     @Override public ItemStack getStack(int slot) { return items.get(slot); }
     @Override public ItemStack removeStack(int slot, int amount) { return Inventories.splitStack(items, slot, amount); }
     @Override public ItemStack removeStack(int slot) { return Inventories.removeStack(items, slot); }
-    @Override public void setStack(int slot, ItemStack stack) { items.set(slot, stack); markDirty(); }
+    @Override public void setStack(int slot, ItemStack stack) { items.set(slot, stack); markDirty(); if (world != null) world.updateListeners(pos, getCachedState(), getCachedState(), 3);}
     @Override public boolean canPlayerUse(PlayerEntity player) { return true; }
-    @Override public void clear() { items.replaceAll(ignored -> ItemStack.EMPTY); markDirty(); }
+    @Override public void clear() { items.replaceAll(ignored -> ItemStack.EMPTY); markDirty(); if (world != null) world.updateListeners(pos, getCachedState(), getCachedState(), 3);}
 
     @Override
     public void writeNbt(NbtCompound nbt) {
@@ -107,6 +111,16 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
         catch (IllegalArgumentException e) { loopMode = LoopMode.OFF; }
         isPlaying = false;
         ticksPlayed = 0;
+    }
+
+    @Override
+    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+        return BlockEntityUpdateS2CPacket.create(this);
+    }
+
+    @Override
+    public NbtCompound toInitialChunkDataNbt() {
+        return createNbt();
     }
 
     public void tick(World world, BlockPos pos, BlockState state) {
