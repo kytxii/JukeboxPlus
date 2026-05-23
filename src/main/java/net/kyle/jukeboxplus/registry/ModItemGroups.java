@@ -16,7 +16,7 @@ public class ModItemGroups {
         new Identifier(JukeboxPlus.MOD_ID, "jukebox_plus"),
         FabricItemGroup.builder()
             .displayName(Text.translatable("itemgroup.jukebox_plus"))
-            .icon(() -> new ItemStack(ModItems.JUKEBOX_PLUS))
+            .icon(() -> new ItemStack(ModBlocks.JUKEBOX_PLUS))
             .entries((displayContext, entries) -> {
                 // Jukebox+ block
                 entries.add(ModBlocks.JUKEBOX_PLUS);
