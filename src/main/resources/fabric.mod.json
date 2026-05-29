@@ -3,14 +3,13 @@
   "id": "jukeboxplus",
   "version": "${version}",
   "name": "JukeboxPlus",
-  "description": "This is an enchanced jukebox mod make by Kyle",
-  "authors": ["Kyle"],
+  "description": "An upgraded jukebox that holds up to 9 music discs with a custom GUI featuring playback controls, a progress bar, and loop modes. Discs auto-advance when finished and are displayed on the face of the block. Compatible with any disc mod.",
+  "authors": ["Karlito"],
   "contact": {
-    "homepage": "https://fabricmc.net/",
+    "homepage": "https://modrinth.com/mod/jukebox+",
     "sources": "https://github.com/kytxii/JukeboxPlus"
   },
-  "license": "MIT",
-  "icon": "assets/jukeboxplus/icon.png",
+  "license": "CC-BY-NC-SA-4.0",
   "environment": "*",
   "entrypoints": {
     "main": ["net.kyle.jukeboxplus.JukeboxPlus"],
