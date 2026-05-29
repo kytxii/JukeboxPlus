@@ -85,7 +85,7 @@ public class JukeboxPlusScreen extends HandledScreen<JukeboxPlusScreenHandler> {
 
         String loopIcon = switch (handler.getLoopMode()) {
             case OFF      -> "\u2192";
-            case LOOP_ONE -> "\u21BA";
+            case LOOP_ONE -> "1";
             case LOOP_ALL -> "\u221E";
         };
         loopButton.setMessage(Text.literal(loopIcon));
