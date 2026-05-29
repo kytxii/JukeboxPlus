@@ -21,7 +21,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.BlockView;
 
 public class JukeboxPlusTopBlock extends Block {
-    private static final VoxelShape SHAPE = Block.createCuboidShape(0, 0, 0, 16, 8, 16);
+    private static final VoxelShape SHAPE = Block.createCuboidShape(0, 0, 0, 16, 15, 16);
 
     public JukeboxPlusTopBlock(Settings settings) {
         super(settings);

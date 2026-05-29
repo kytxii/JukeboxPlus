@@ -12,6 +12,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.RotationAxis;
 import net.kyle.jukeboxplus.util.DiscDurationUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.MusicDiscItem;
@@ -75,9 +76,10 @@ public class JukeboxPlusScreen extends HandledScreen<JukeboxPlusScreenHandler> {
         if (!disc.isEmpty()) {
             MatrixStack matrices = context.getMatrices();
             matrices.push();
-            matrices.translate(discX, discY, 0);
+            matrices.translate(discX + 16, discY + 16, 0);
+            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(0));
             matrices.scale(2.0f, 2.0f, 1.0f);
-            context.drawItem(disc, 0, 0);
+            context.drawItem(disc, -8, -8);
             matrices.pop();
         }
 

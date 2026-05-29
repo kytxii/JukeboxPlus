@@ -1,33 +1,33 @@
 {
   "variants": {
     "facing=north,half=upper": {
-      "model": "jukeboxplus:block/jukebox_plus_16x_top"
+      "model": "jukeboxplus:block/jukebox_plus_top_16x"
     },
     "facing=south,half=upper": {
-      "model": "jukeboxplus:block/jukebox_plus_16x_top",
+      "model": "jukeboxplus:block/jukebox_plus_top_16x",
       "y": 180
     },
     "facing=east,half=upper": {
-      "model": "jukeboxplus:block/jukebox_plus_16x_top",
+      "model": "jukeboxplus:block/jukebox_plus_top_16x",
       "y": 90
     },
     "facing=west,half=upper": {
-      "model": "jukeboxplus:block/jukebox_plus_16x_top",
+      "model": "jukeboxplus:block/jukebox_plus_top_16x",
       "y": 270
     },
     "facing=north,half=lower": {
-      "model": "jukeboxplus:block/jukebox_plus_16x_top"
+      "model": "jukeboxplus:block/jukebox_plus_bottom_16x"
     },
     "facing=south,half=lower": {
-      "model": "jukeboxplus:block/jukebox_plus_16x_top",
+      "model": "jukeboxplus:block/jukebox_plus_bottom_16x",
       "y": 180
     },
     "facing=east,half=lower": {
-      "model": "jukeboxplus:block/jukebox_plus_16x_top",
+      "model": "jukeboxplus:block/jukebox_plus_bottom_16x",
       "y": 90
     },
     "facing=west,half=lower": {
-      "model": "jukeboxplus:block/jukebox_plus_16x_top",
+      "model": "jukeboxplus:block/jukebox_plus_bottom_16x",
       "y": 270
     }
   }
