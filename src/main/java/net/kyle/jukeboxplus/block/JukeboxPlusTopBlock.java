@@ -4,6 +4,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -41,6 +42,11 @@ public class JukeboxPlusTopBlock extends Block {
             BlockPos bottomPos = pos.down();
             BlockState bottomState = world.getBlockState(bottomPos);
             if (bottomState.isOf(ModBlocks.JUKEBOX_PLUS)) {
+                BlockEntity be = world.getBlockEntity(bottomPos);
+                if (be instanceof JukeboxPlusBlockEntity jukeboxEntity) {
+                    ItemScatterer.spawn(world, bottomPos, jukeboxEntity);
+                    jukeboxEntity.clear();
+                }
                 if (!player.isCreative()) {
                     Block.dropStacks(bottomState, world, bottomPos, null, player, player.getMainHandStack());
                 }

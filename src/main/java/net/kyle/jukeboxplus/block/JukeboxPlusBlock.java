@@ -20,6 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -64,8 +65,14 @@ public class JukeboxPlusBlock extends BlockWithEntity {
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         if (!world.isClient()) {
             BlockPos topPos = pos.up();
-            world.syncWorldEvent(1011, pos, 0); // stop current
-            
+            world.syncWorldEvent(1011, pos, 0);
+
+            BlockEntity be = world.getBlockEntity(pos);
+            if (be instanceof JukeboxPlusBlockEntity jukeboxEntity) {
+                ItemScatterer.spawn(world, pos, jukeboxEntity);
+                jukeboxEntity.clear();
+            }
+
             if (world.getBlockState(topPos).isOf(ModBlocks.JUKEBOX_PLUS_TOP)) {
                 world.setBlockState(topPos, Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL | Block.SKIP_DROPS);
             }
