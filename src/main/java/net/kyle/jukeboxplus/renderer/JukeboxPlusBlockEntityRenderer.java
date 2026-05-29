@@ -25,12 +25,15 @@ public class JukeboxPlusBlockEntityRenderer implements BlockEntityRenderer<Jukeb
             if (stack.isEmpty()) continue;
 
             matrices.push();
-            matrices.translate(0.675, 19.0 / 16.0, 0.5);
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(facing.asRotation() - 180));
+            matrices.translate(0.5, 19.0 / 16.0, 0.5);
+            float yaw = facing.getAxis() == Direction.Axis.X
+                    ? facing.asRotation()
+                    : facing.asRotation() - 180;
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yaw));
             matrices.translate(0, 0, 0.08);
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(270)); // disc sideways align
-            matrices.translate(0, 0, (i + 0.5f) / 14.0f - 0.5f); // disc stack offset
-            matrices.scale(0.5f, 0.5f, 0.5f); //  disc scale (w, h, d)
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(270));
+            matrices.translate(0, 0, (i + 0.5f) / 14.0f - 0.5f);
+            matrices.scale(0.5f, 0.5f, 0.5f);
 
             MinecraftClient.getInstance().getItemRenderer().renderItem(
                     stack, ModelTransformationMode.FIXED,
