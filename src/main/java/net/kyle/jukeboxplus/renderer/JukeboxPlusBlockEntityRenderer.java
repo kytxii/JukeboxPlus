@@ -32,7 +32,7 @@ public class JukeboxPlusBlockEntityRenderer implements BlockEntityRenderer<Jukeb
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yaw));
             matrices.translate(0, 0, 0.08);
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(270));
-            matrices.translate(0, 0, (i + 3.0f) / 14.0f - 0.5f);
+            matrices.translate(-0.08, 0.1, (i + 2.0f) / 15.0f - 0.4f);
             matrices.scale(0.5f, 0.5f, 0.5f);
 
             MinecraftClient.getInstance().getItemRenderer().renderItem(
