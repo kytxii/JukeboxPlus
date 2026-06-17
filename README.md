@@ -1,6 +1,6 @@
 # JukeboxPlus
 
-> A tall, upgraded jukebox for Minecraft 1.20.1 — store 9 discs, control playback, and see your collection on the block.
+> An interactive jukebox block that extends the vanilla jukebox with a 9-disc inventory, playback controls, and loop modes.
 
 ![Modrinth](https://img.shields.io/modrinth/dt/jukebox+?label=downloads&color=00AF5C&logo=modrinth)
 ![Minecraft](https://img.shields.io/badge/minecraft-1.20.1-blue)
