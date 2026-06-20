@@ -3,6 +3,7 @@
 > An interactive jukebox block that extends the vanilla jukebox with a 9-disc inventory, playback controls, and loop modes.
 
 ![Modrinth](https://img.shields.io/modrinth/dt/jukebox+?label=downloads&color=00AF5C&logo=modrinth)
+![CurseForge](https://img.shields.io/curseforge/dt/1558003?label=downloads&color=F16436&logo=curseforge&style=flat-square)
 ![Minecraft](https://img.shields.io/badge/minecraft-1.20.1-blue)
 ![Fabric](https://img.shields.io/badge/loader-fabric-orange)
 ![License](https://img.shields.io/badge/license-CC--BY--NC--SA--4.0-lightgrey)
