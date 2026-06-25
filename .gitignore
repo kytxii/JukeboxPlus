@@ -39,3 +39,10 @@ replay_*.log
 *.hprof
 *.jfr
 CLAUDE.md
+
+# stonecutter generated per-version subprojects (derived from root src/)
+versions/
+
+# serena mcp cache
+.serena/
+/AGENTS.md

@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.kyle.jukeboxplus.registry.ModBlockEntities;
 import net.kyle.jukeboxplus.screen.JukeboxPlusScreenHandler;
+import net.kyle.jukeboxplus.util.DiscCompat;
 import net.kyle.jukeboxplus.util.DiscDurationUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -11,9 +12,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.MusicDiscItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -28,7 +27,11 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+//? if >=1.20.5 {
+/*public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, ExtendedScreenHandlerFactory<BlockPos> {
+*///?} else {
 public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, ExtendedScreenHandlerFactory {
+//?}
     private final DefaultedList<ItemStack> items = DefaultedList.ofSize(9, ItemStack.EMPTY);
 
     private int currentSlot = 0;
@@ -66,10 +69,17 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
         super(ModBlockEntities.JUKEBOX_PLUS_BLOCK_ENTITY, pos, state);
     }
 
+    //? if >=1.20.5 {
+    /*@Override
+    public BlockPos getScreenOpeningData(ServerPlayerEntity player) {
+        return this.pos;
+    }
+    *///?} else {
     @Override
     public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf buf) {
         buf.writeBlockPos(this.pos);
     }
+    //?}
 
     @Override
     public Text getDisplayName() {
@@ -91,21 +101,39 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
     @Override public void clear() { items.replaceAll(ignored -> ItemStack.EMPTY); markDirty(); }
 
     @Override
+    //? if >=1.20.5 {
+    /*public void writeNbt(NbtCompound nbt, net.minecraft.registry.RegistryWrapper.WrapperLookup registries) {
+        Inventories.writeNbt(nbt, items, registries);
+    *///?} else {
     public void writeNbt(NbtCompound nbt) {
         Inventories.writeNbt(nbt, items);
+    //?}
         nbt.putInt("currentSlot", currentSlot);
         nbt.putInt("ticksPlayed", ticksPlayed);
         nbt.putInt("discDurationTicks", discDurationTicks);
         nbt.putBoolean("isPlaying", isPlaying);
         nbt.putString("loopMode", loopMode.name());
+        //? if >=1.20.5 {
+        /*super.writeNbt(nbt, registries);
+        *///?} else {
         super.writeNbt(nbt);
+        //?}
     }
 
     @Override
+    //? if >=1.20.5 {
+    /*public void readNbt(NbtCompound nbt, net.minecraft.registry.RegistryWrapper.WrapperLookup registries) {
+        super.readNbt(nbt, registries);
+    *///?} else {
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
+    //?}
         items.replaceAll(ignored -> ItemStack.EMPTY); // clear stale items first
+        //? if >=1.20.5 {
+        /*Inventories.readNbt(nbt, items, registries);
+        *///?} else {
         Inventories.readNbt(nbt, items);
+        //?}
         currentSlot = nbt.getInt("currentSlot");
         ticksPlayed = nbt.getInt("ticksPlayed");
         discDurationTicks = nbt.getInt("discDurationTicks");
@@ -122,9 +150,15 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
     }
 
     @Override
+    //? if >=1.20.5 {
+    /*public NbtCompound toInitialChunkDataNbt(net.minecraft.registry.RegistryWrapper.WrapperLookup registries) {
+        return createNbt(registries);
+    }
+    *///?} else {
     public NbtCompound toInitialChunkDataNbt() {
         return createNbt();
     }
+    //?}
 
     @Override
     public void markDirty() {
@@ -141,7 +175,7 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
         if (!isPlaying)     return;
 
         if (isPlaying && items.get(currentSlot).isEmpty()) {
-            world.syncWorldEvent(1011, pos, 0);
+            DiscCompat.stop(world, pos);
             isPlaying = false;
             ticksPlayed = 0;
             markDirty();
@@ -153,14 +187,14 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
             return;
         }
 
-        world.syncWorldEvent(1011, pos, 0); // stop current sound
+        DiscCompat.stop(world, pos); // stop current sound
 
         switch (loopMode) {
             case LOOP_ONE -> {
                 ticksPlayed = 0;
                 ItemStack disc = items.get(currentSlot);
-                if (disc.getItem() instanceof MusicDiscItem)
-                    world.syncWorldEvent(1010, pos, Item.getRawId(disc.getItem()));
+                if (DiscCompat.isDisc(disc))
+                    DiscCompat.play(world, pos, disc);
                 else
                     isPlaying = false;
             }
@@ -173,9 +207,13 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
                     currentSlot = next;
                     ticksPlayed = 0;
                     ItemStack disc = items.get(currentSlot);
-                    if (disc.getItem() instanceof MusicDiscItem musicDisc) {
-                        discDurationTicks = DiscDurationUtil.getDurationTicks(musicDisc.getSound(), world.getServer());
-                        world.syncWorldEvent(1010, pos, Item.getRawId(disc.getItem()));
+                    if (DiscCompat.isDisc(disc)) {
+                        //? if >=1.21 {
+                        /*discDurationTicks = DiscCompat.getDurationTicks(world, disc);
+                        *///?} else {
+                        discDurationTicks = DiscDurationUtil.getDurationTicks(((net.minecraft.item.MusicDiscItem) disc.getItem()).getSound(), world.getServer());
+                        //?}
+                        DiscCompat.play(world, pos, disc);
                     } else {
                         isPlaying = false;
                     }
@@ -207,4 +245,50 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
     public void setPlaying(boolean playing) { isPlaying = playing; markDirty(); }
     public LoopMode getLoopMode() { return loopMode; }
     public void setLoopMode(LoopMode mode) { loopMode = mode; markDirty(); }
+
+    // --- Server-side action handlers (called by ModPackets.dispatch) ---
+
+    public void play(int duration) {
+        setDiscDurationTicks(duration);
+        setTicksPlayed(0);
+        setPlaying(true);
+        restartCurrentDisc();
+    }
+
+    public void stopPlayback() {
+        setPlaying(false);
+        setTicksPlayed(0);
+        stopSound();
+    }
+
+    public void next(int duration) { advance(1, duration); }
+    public void prev(int duration) { advance(8, duration); }
+
+    private void advance(int delta, int duration) {
+        setCurrentSlot((currentSlot + delta) % 9);
+        setDiscDurationTicks(duration);
+        setTicksPlayed(0);
+        setPlaying(true);
+        restartCurrentDisc();
+    }
+
+    public void toggleLoop() {
+        setLoopMode(switch (loopMode) {
+            case OFF      -> LoopMode.LOOP_ONE;
+            case LOOP_ONE -> LoopMode.LOOP_ALL;
+            case LOOP_ALL -> LoopMode.OFF;
+        });
+    }
+
+    private void stopSound() {
+        if (world != null) DiscCompat.stop(world, pos);
+    }
+
+    private void restartCurrentDisc() {
+        if (world == null) return;
+        DiscCompat.stop(world, pos);
+        ItemStack disc = getStack(currentSlot);
+        if (DiscCompat.isDisc(disc))
+            DiscCompat.play(world, pos, disc);
+    }
 }

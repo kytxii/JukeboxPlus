@@ -1,0 +1,6 @@
+// Stonecutter controller (root build file). The plugin rewrites the line below
+// when you run `./gradlew "Set active project to <version>"`. Do not hand-edit the marker.
+plugins {
+	id 'dev.kikugie.stonecutter'
+}
+stonecutter.active '1.20.1' /* [SC] DO NOT EDIT */

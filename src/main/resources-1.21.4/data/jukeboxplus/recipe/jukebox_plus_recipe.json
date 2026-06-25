@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "#": "#minecraft:planks",
+    "G": "minecraft:glass_pane",
+    "o": "minecraft:diamond",
+    "J": "minecraft:jukebox",
+    "I": "minecraft:iron_block"
+  },
+  "pattern": ["#G#", "oJo", "#I#"],
+  "result": {"id": "jukeboxplus:jukebox_plus_block", "count": 1}
+}

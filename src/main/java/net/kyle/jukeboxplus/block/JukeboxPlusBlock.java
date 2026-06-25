@@ -5,6 +5,8 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.state.property.Properties;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
+//? if >=1.20.3
+//import com.mojang.serialization.MapCodec;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -12,6 +14,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.kyle.jukeboxplus.block.entity.JukeboxPlusBlockEntity;
 import net.kyle.jukeboxplus.registry.ModBlockEntities;
 import net.kyle.jukeboxplus.registry.ModBlocks;
+import net.kyle.jukeboxplus.util.DiscCompat;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -28,6 +31,15 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 
 public class JukeboxPlusBlock extends BlockWithEntity {
+
+    //? if >=1.20.3 {
+    /*public static final MapCodec<JukeboxPlusBlock> CODEC = createCodec(JukeboxPlusBlock::new);
+
+    @Override
+    protected MapCodec<? extends BlockWithEntity> getCodec() {
+        return CODEC;
+    }
+    *///?}
 
     public JukeboxPlusBlock(Settings settings) {
         super(settings);
@@ -62,10 +74,14 @@ public class JukeboxPlusBlock extends BlockWithEntity {
     }
 
     @Override
+    //? if >=1.20.3 {
+    /*public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+    *///?} else {
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+    //?}
         if (!world.isClient()) {
             BlockPos topPos = pos.up();
-            world.syncWorldEvent(1011, pos, 0);
+            DiscCompat.stop(world, pos);
 
             BlockEntity be = world.getBlockEntity(pos);
             if (be instanceof JukeboxPlusBlockEntity jukeboxEntity) {
@@ -77,7 +93,11 @@ public class JukeboxPlusBlock extends BlockWithEntity {
                 world.setBlockState(topPos, Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL | Block.SKIP_DROPS);
             }
         }
+        //? if >=1.20.3 {
+        /*return super.onBreak(world, pos, state, player);
+        *///?} else {
         super.onBreak(world, pos, state, player);
+        //?}
     }
 
     @Override
@@ -91,7 +111,11 @@ public class JukeboxPlusBlock extends BlockWithEntity {
     }
 
     @Override
+    //? if >=1.20.5 {
+    /*public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+    *///?} else {
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+    //?}
         if (!world.isClient()) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof JukeboxPlusBlockEntity jukeboxEntity) {
@@ -103,9 +127,14 @@ public class JukeboxPlusBlock extends BlockWithEntity {
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        if (world.isClient) return null;
+        if (world.isClient()) return null;
+        //? if >=1.20.3 {
+        /*return validateTicker(type, ModBlockEntities.JUKEBOX_PLUS_BLOCK_ENTITY,
+            (w, pos, s, be) -> be.tick(w, pos, s));
+        *///?} else {
         return checkType(type, ModBlockEntities.JUKEBOX_PLUS_BLOCK_ENTITY,
             (w, pos, s, be) -> be.tick(w, pos, s));
+        //?}
     }
 
     @Override

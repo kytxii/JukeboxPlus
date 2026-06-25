@@ -4,7 +4,7 @@
 
 ![Modrinth](https://img.shields.io/modrinth/dt/jukebox+?label=downloads&color=00AF5C&logo=modrinth)
 ![CurseForge](https://img.shields.io/curseforge/dt/1558003?label=downloads&color=F16436&logo=curseforge&style=flat-square)
-![Minecraft](https://img.shields.io/badge/minecraft-1.20.1-blue)
+![Minecraft](https://img.shields.io/badge/minecraft-1.19.4%20%E2%80%93%201.21.4-blue)
 ![Fabric](https://img.shields.io/badge/loader-fabric-orange)
 ![License](https://img.shields.io/badge/license-CC--BY--NC--SA--4.0-lightgrey)
 
@@ -34,12 +34,46 @@ Requires a vanilla jukebox plus additional materials — check the in-game recip
 
 ---
 
+## Supported versions
+
+JukeboxPlus ships a separate build per Minecraft version. **Download the file matching your Minecraft version** — each one covers a range:
+
+| Download | Works on | Java |
+|---|---|---|
+| `jukeboxplus-*+1.19.4.jar` | 1.19.4 | 17 |
+| `jukeboxplus-*+1.20.1.jar` | 1.20 – 1.20.2 | 17 |
+| `jukeboxplus-*+1.20.4.jar` | 1.20.3 – 1.20.4 | 17 |
+| `jukeboxplus-*+1.20.6.jar` | 1.20.5 – 1.20.6 | 21 |
+| `jukeboxplus-*+1.21.1.jar` | 1.21 – 1.21.1 | 21 |
+| `jukeboxplus-*+1.21.4.jar` | 1.21.2 – 1.21.4 | 21 |
+
+All builds are Fabric and require [Fabric API](https://modrinth.com/mod/fabric-api). 1.21.5+ isn't supported yet.
+
+---
+
 ## Installation
 
 1. Install [Fabric Loader](https://fabricmc.net/use/installer/)
-2. Download [Fabric API](https://modrinth.com/mod/fabric-api)
-3. Drop both jars into your `mods` folder
+2. Download [Fabric API](https://modrinth.com/mod/fabric-api) for your Minecraft version
+3. Drop the **JukeboxPlus jar for your Minecraft version** (see the table above) and Fabric API into your `mods` folder
 4. Launch
+
+---
+
+## Building from source
+
+This repo targets multiple Minecraft versions with [Stonecutter](https://stonecutter.kikugie.dev/). To build every version's jar at once:
+
+```powershell
+.\build-all.ps1
+```
+
+Jars land in `build/libs/`. To work on a single version, switch the active target first:
+
+```bash
+./gradlew "Set active project to 1.21.4"
+./gradlew runClient
+```
 
 ---
 

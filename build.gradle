@@ -3,15 +3,23 @@ plugins {
 	id 'maven-publish'
 }
 
-version = project.mod_version
+// Stonecutter gives us the version this subproject is building for.
+def mcVersion = stonecutter.current.version
+
+// Per-version dependency table. Add a row when you add a version in settings.gradle.
+def deps = [
+	'1.19.4':  [yarn: '1.19.4+build.2',  fapi: '0.87.2+1.19.4',   java: 17, mcDep: '>=1.19.4 <1.20'],
+	'1.20.1':  [yarn: '1.20.1+build.10', fapi: '0.92.8+1.20.1',   java: 17, mcDep: '>=1.20 <1.20.3'],
+	'1.20.4':  [yarn: '1.20.4+build.3',  fapi: '0.97.3+1.20.4',   java: 17, mcDep: '>=1.20.3 <1.20.5'],
+	'1.20.6':  [yarn: '1.20.6+build.3',  fapi: '0.100.8+1.20.6',  java: 21, mcDep: '>=1.20.5 <1.21'],
+	'1.21.1':  [yarn: '1.21.1+build.3',  fapi: '0.116.0+1.21.1',  java: 21, mcDep: '>=1.21 <1.21.2'],
+	'1.21.4':  [yarn: '1.21.4+build.8',  fapi: '0.119.4+1.21.4',  java: 21, mcDep: '>=1.21.2 <1.21.5'],
+][mcVersion]
+
+version = "${project.mod_version}+${mcVersion}"
 group = project.maven_group
 
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
 }
 
 fabricApi {
@@ -21,61 +29,86 @@ fabricApi {
 }
 
 dependencies {
-	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	minecraft "com.mojang:minecraft:${mcVersion}"
+	mappings "net.fabricmc:yarn:${deps.yarn}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${deps.fapi}"
+}
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-	
+// Per-version resource overrides. Data-pack folders/formats changed across MC
+// versions (recipes->recipe & loot_tables->loot_table at 1.21; result item->id at
+// 1.20.5; object->string ingredients at 1.21.2). Files in src/main/resources-<mc>
+// override the shared ones for that build only.
+sourceSets {
+	main {
+		resources {
+			srcDir "src/main/resources-${mcVersion}"
+		}
+	}
 }
 
 processResources {
-	def version = project.version
-	inputs.property "version", version
+	// The version override dir is added after the shared dir, so its files win.
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
-	filesMatching("fabric.mod.json") {
-		expand "version": version
+	def props = [
+		version             : version,
+		minecraft_dependency: deps.mcDep,
+		java_dependency     : ">=${deps.java}"
+	]
+	inputs.properties props
+
+	filesMatching('fabric.mod.json') {
+		expand props
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 17
+	it.options.release = deps.java
+}
+
+// Name every version's jar "jukeboxplus-<modver>+<mcver>.jar" instead of using the
+// version-named Stonecutter subproject as the prefix.
+base {
+	archivesName = rootProject.name
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.toVersion(deps.java)
+	targetCompatibility = JavaVersion.toVersion(deps.java)
+}
+
+// The per-version resource override dirs create duplicate paths in the sources jar;
+// keep the last (override) copy instead of failing.
+tasks.withType(AbstractArchiveTask).configureEach {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 jar {
-	def projectName = project.name
-	inputs.property "projectName", projectName
+	def projectName = rootProject.name
+	inputs.property 'projectName', projectName
 
-	from("LICENSE") {
-		rename { "${it}_$projectName"}
+	from('LICENSE') {
+		rename { "${it}_$projectName" }
 	}
 }
 
-// configure the maven publication
+// Collect each version's jar into a shared folder so `chiseledBuild` outputs are easy to find.
+def buildAndCollect = tasks.register('buildAndCollect', Copy) {
+	group = 'build'
+	from tasks.named('remapJar')
+	into rootProject.layout.buildDirectory.dir('libs')
+	dependsOn 'build'
+}
+
 publishing {
 	publications {
-		create("mavenJava", MavenPublication) {
+		create('mavenJava', MavenPublication) {
 			from components.java
 		}
 	}
-
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
 	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
 	}
 }

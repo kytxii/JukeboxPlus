@@ -7,7 +7,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.MusicDiscItem;
+import net.kyle.jukeboxplus.util.DiscCompat;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ArrayPropertyDelegate;
 import net.minecraft.screen.PropertyDelegate;
@@ -21,10 +21,17 @@ public class JukeboxPlusScreenHandler extends ScreenHandler {
     private BlockPos blockPos;
 
     // Client-side
+    //? if >=1.20.5 {
+    /*public JukeboxPlusScreenHandler(int syncId, PlayerInventory playerInventory, BlockPos pos) {
+        this(syncId, playerInventory, new SimpleInventory(9), new ArrayPropertyDelegate(5));
+        this.blockPos = pos;
+    }
+    *///?} else {
     public JukeboxPlusScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
         this(syncId, playerInventory, new SimpleInventory(9), new ArrayPropertyDelegate(5));
         this.blockPos = buf.readBlockPos();
     }
+    //?}
 
     // Server-side
     public JukeboxPlusScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory, PropertyDelegate propertyDelegate) {
@@ -36,7 +43,7 @@ public class JukeboxPlusScreenHandler extends ScreenHandler {
         for (int i = 0; i < 9; i++) {
             this.addSlot(new Slot(inventory, i, 8 + i * 18, 55) {
                 @Override public boolean canInsert(ItemStack stack) {
-                    return stack.getItem() instanceof MusicDiscItem;
+                    return DiscCompat.isDisc(stack);
                 }
             });
         }

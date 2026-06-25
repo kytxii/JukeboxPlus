@@ -5,7 +5,11 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
+//? if >=1.21.2 {
+/*import net.minecraft.item.ModelTransformationMode;
+*///?} else {
 import net.minecraft.client.render.model.json.ModelTransformationMode;
+//?}
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.property.Properties;
@@ -26,9 +30,15 @@ public class JukeboxPlusBlockEntityRenderer implements BlockEntityRenderer<Jukeb
 
             matrices.push();
             matrices.translate(0.5, 19.0 / 16.0, 0.5);
+            //? if >=1.21.2 {
+            /*float yaw = facing.getAxis() == Direction.Axis.X
+                    ? facing.getPositiveHorizontalDegrees()
+                    : facing.getPositiveHorizontalDegrees() - 180;
+            *///?} else {
             float yaw = facing.getAxis() == Direction.Axis.X
                     ? facing.asRotation()
                     : facing.asRotation() - 180;
+            //?}
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yaw));
             matrices.translate(0, 0, 0.08);
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(270));

@@ -12,6 +12,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.kyle.jukeboxplus.block.entity.JukeboxPlusBlockEntity;
 import net.kyle.jukeboxplus.registry.ModBlocks;
+import net.kyle.jukeboxplus.util.DiscCompat;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -37,11 +38,16 @@ public class JukeboxPlusTopBlock extends Block {
     }
 
     @Override
+    //? if >=1.20.3 {
+    /*public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+    *///?} else {
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+    //?}
         if (!world.isClient()) {
             BlockPos bottomPos = pos.down();
             BlockState bottomState = world.getBlockState(bottomPos);
             if (bottomState.isOf(ModBlocks.JUKEBOX_PLUS)) {
+                DiscCompat.stop(world, bottomPos);
                 BlockEntity be = world.getBlockEntity(bottomPos);
                 if (be instanceof JukeboxPlusBlockEntity jukeboxEntity) {
                     ItemScatterer.spawn(world, bottomPos, jukeboxEntity);
@@ -53,12 +59,20 @@ public class JukeboxPlusTopBlock extends Block {
                 world.setBlockState(bottomPos, Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL | Block.SKIP_DROPS);
             }
         }
+        //? if >=1.20.3 {
+        /*return super.onBreak(world, pos, state, player);
+        *///?} else {
         super.onBreak(world, pos, state, player);
+        //?}
     }
 
     @Override
+    //? if >=1.20.5 {
+    /*public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+    *///?} else {
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
     BlockHitResult hit) {
+    //?}
         BlockPos bottomPos = pos.down();
         BlockState bottomState = world.getBlockState(bottomPos);
         if (!bottomState.isOf(ModBlocks.JUKEBOX_PLUS)) {

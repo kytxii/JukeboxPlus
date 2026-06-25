@@ -1,5 +1,6 @@
 package net.kyle.jukeboxplus.util;
 
+import net.kyle.jukeboxplus.JukeboxPlus;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.Sound;
 import net.minecraft.client.sound.WeightedSoundSet;
@@ -16,7 +17,7 @@ public class DiscDurationUtil {
     private static final Map<Identifier, Integer> cache = new HashMap<>();
 
     public static int getDurationTicks(SoundEvent soundEvent, ResourceManager resources) {
-        Identifier eventId = soundEvent.getId();
+        Identifier eventId = net.minecraft.registry.Registries.SOUND_EVENT.getId(soundEvent);
         if (cache.containsKey(eventId)) return cache.get(eventId);
 
         // resolve event ID → actual file path via sounds.json
@@ -26,7 +27,7 @@ public class DiscDurationUtil {
         Sound sound = soundSet.getSound(net.minecraft.util.math.random.Random.create());
         if (sound == null) return 0;
 
-        Identifier fileId = new Identifier(
+        Identifier fileId = JukeboxPlus.id(
             sound.getIdentifier().getNamespace(),
             "sounds/" + sound.getIdentifier().getPath() + ".ogg"
         );
@@ -76,10 +77,10 @@ public class DiscDurationUtil {
     }
 
     public static int getDurationTicks(SoundEvent soundEvent, MinecraftServer server) {
-        Identifier eventId = soundEvent.getId();
+        Identifier eventId = net.minecraft.registry.Registries.SOUND_EVENT.getId(soundEvent);
         if (cache.containsKey(eventId)) return cache.get(eventId);
 
-        Identifier fileId = new Identifier(
+        Identifier fileId = JukeboxPlus.id(
             eventId.getNamespace(),
             "sounds/" + eventId.getPath().replace('.', '/') + ".ogg"
         );
