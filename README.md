@@ -6,7 +6,7 @@
 ![CurseForge](https://img.shields.io/curseforge/dt/1558003?label=downloads&color=F16436&logo=curseforge&style=flat-square)
 ![Minecraft](https://img.shields.io/badge/minecraft-1.19.4%20%E2%80%93%201.21.4-blue)
 ![Fabric](https://img.shields.io/badge/loader-fabric-orange)
-![License](https://img.shields.io/badge/license-CC--BY--NC--SA--4.0-lightgrey)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
 ---
 
