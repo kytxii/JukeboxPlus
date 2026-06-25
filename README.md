@@ -40,12 +40,12 @@ JukeboxPlus ships a separate build per Minecraft version. **Download the file ma
 
 | Download | Works on | Java |
 |---|---|---|
-| `jukeboxplus-*+1.19.4.jar` | 1.19.4 | 17 |
-| `jukeboxplus-*+1.20.1.jar` | 1.20 – 1.20.2 | 17 |
-| `jukeboxplus-*+1.20.4.jar` | 1.20.3 – 1.20.4 | 17 |
-| `jukeboxplus-*+1.20.6.jar` | 1.20.5 – 1.20.6 | 21 |
-| `jukeboxplus-*+1.21.1.jar` | 1.21 – 1.21.1 | 21 |
-| `jukeboxplus-*+1.21.4.jar` | 1.21.2 – 1.21.4 | 21 |
+| `jukebox+ 1.1+1.19.4.jar` | 1.19.4 | 17 |
+| `jukebox+ 1.1+1.20.1.jar` | 1.20 – 1.20.2 | 17 |
+| `jukebox+ 1.1+1.20.4.jar` | 1.20.3 – 1.20.4 | 17 |
+| `jukebox+ 1.1+1.20.6.jar` | 1.20.5 – 1.20.6 | 21 |
+| `jukebox+ 1.1+1.21.1.jar` | 1.21 – 1.21.1 | 21 |
+| `jukebox+ 1.1+1.21.4.jar` | 1.21.2 – 1.21.4 | 21 |
 
 All builds are Fabric and require [Fabric API](https://modrinth.com/mod/fabric-api). 1.21.5+ isn't supported yet.
 
@@ -57,23 +57,6 @@ All builds are Fabric and require [Fabric API](https://modrinth.com/mod/fabric-a
 2. Download [Fabric API](https://modrinth.com/mod/fabric-api) for your Minecraft version
 3. Drop the **JukeboxPlus jar for your Minecraft version** (see the table above) and Fabric API into your `mods` folder
 4. Launch
-
----
-
-## Building from source
-
-This repo targets multiple Minecraft versions with [Stonecutter](https://stonecutter.kikugie.dev/). To build every version's jar at once:
-
-```powershell
-.\build-all.ps1
-```
-
-Jars land in `build/libs/`. To work on a single version, switch the active target first:
-
-```bash
-./gradlew "Set active project to 1.21.4"
-./gradlew runClient
-```
 
 ---
 
