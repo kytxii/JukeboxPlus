@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.kyle.jukeboxplus.registry.ModBlockEntities;
 import net.kyle.jukeboxplus.screen.JukeboxPlusScreenHandler;
+import net.kyle.jukeboxplus.util.AudioPlayerCompat;
 import net.kyle.jukeboxplus.util.DiscCompat;
 import net.kyle.jukeboxplus.util.DiscDurationUtil;
 import net.minecraft.block.BlockState;
@@ -182,9 +183,13 @@ public class JukeboxPlusBlockEntity extends BlockEntity implements Inventory, Ex
             return;
         }
 
-        ticksPlayed++;
-        if (discDurationTicks <= 0 || ticksPlayed < discDurationTicks) {
-            return;
+        // AudioPlayer discs: use channel completion instead of tick counting.
+        if (AudioPlayerCompat.LOADED && AudioPlayerCompat.isAudioDisc(items.get(currentSlot))) {
+            if (!AudioPlayerCompat.isChannelStopped(pos)) return;
+            // Channel finished — fall through to the end-of-disc switch below.
+        } else {
+            ticksPlayed++;
+            if (discDurationTicks <= 0 || ticksPlayed < discDurationTicks) return;
         }
 
         DiscCompat.stop(world, pos); // stop current sound

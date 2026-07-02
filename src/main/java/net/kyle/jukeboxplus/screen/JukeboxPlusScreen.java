@@ -15,6 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
+import net.kyle.jukeboxplus.util.AudioPlayerCompat;
 import net.kyle.jukeboxplus.util.DiscDurationUtil;
 import net.kyle.jukeboxplus.util.DiscCompat;
 import net.minecraft.client.MinecraftClient;
@@ -185,12 +186,18 @@ public class JukeboxPlusScreen extends HandledScreen<JukeboxPlusScreenHandler> {
             int nextSlot = (handler.getCurrentSlot() + 8) % 9;
             ItemStack disc = handler.getSlot(nextSlot).getStack();
             int duration;
+            if (AudioPlayerCompat.LOADED && AudioPlayerCompat.isAudioDisc(disc)) {
+                duration = 0; // AP handles end-of-disc via channel completion, not tick counting
             //? if >=1.21 {
-            /*duration = DiscCompat.getDurationTicks(MinecraftClient.getInstance().world, disc);
+            /*} else {
+                duration = DiscCompat.getDurationTicks(MinecraftClient.getInstance().world, disc);
+            }
             *///?} else {
-            duration = 0;
-            if (disc.getItem() instanceof net.minecraft.item.MusicDiscItem musicDisc)
-                duration = DiscDurationUtil.getDurationTicks(musicDisc.getSound(), MinecraftClient.getInstance().getResourceManager());
+            } else {
+                duration = 0;
+                if (disc.getItem() instanceof net.minecraft.item.MusicDiscItem musicDisc)
+                    duration = DiscDurationUtil.getDurationTicks(musicDisc.getSound(), MinecraftClient.getInstance().getResourceManager());
+            }
             //?}
             sendAction(handler.getBlockPos(), ModPackets.PREV, duration);
         }).dimensions(x + 55, y + 30, 16, 16).build());
@@ -198,15 +205,21 @@ public class JukeboxPlusScreen extends HandledScreen<JukeboxPlusScreenHandler> {
         playButton = addDrawableChild(ButtonWidget.builder(Text.literal("▶"), btn -> {
             ItemStack disc = handler.getSlot(handler.getCurrentSlot()).getStack();
             int duration;
+            if (AudioPlayerCompat.LOADED && AudioPlayerCompat.isAudioDisc(disc)) {
+                duration = 0;
             //? if >=1.21 {
-            /*duration = DiscCompat.getDurationTicks(MinecraftClient.getInstance().world, disc);
+            /*} else {
+                duration = DiscCompat.getDurationTicks(MinecraftClient.getInstance().world, disc);
+            }
             *///?} else {
-            duration = 0;
-            if (disc.getItem() instanceof net.minecraft.item.MusicDiscItem musicDisc) {
-                duration = DiscDurationUtil.getDurationTicks(
-                    musicDisc.getSound(),
-                    MinecraftClient.getInstance().getResourceManager()
-                );
+            } else {
+                duration = 0;
+                if (disc.getItem() instanceof net.minecraft.item.MusicDiscItem musicDisc) {
+                    duration = DiscDurationUtil.getDurationTicks(
+                        musicDisc.getSound(),
+                        MinecraftClient.getInstance().getResourceManager()
+                    );
+                }
             }
             //?}
             sendAction(handler.getBlockPos(), ModPackets.PLAY, duration);
@@ -222,12 +235,18 @@ public class JukeboxPlusScreen extends HandledScreen<JukeboxPlusScreenHandler> {
             int nextSlot = (handler.getCurrentSlot() + 1) % 9;
             ItemStack disc = handler.getSlot(nextSlot).getStack();
             int duration;
+            if (AudioPlayerCompat.LOADED && AudioPlayerCompat.isAudioDisc(disc)) {
+                duration = 0;
             //? if >=1.21 {
-            /*duration = DiscCompat.getDurationTicks(MinecraftClient.getInstance().world, disc);
+            /*} else {
+                duration = DiscCompat.getDurationTicks(MinecraftClient.getInstance().world, disc);
+            }
             *///?} else {
-            duration = 0;
-            if (disc.getItem() instanceof net.minecraft.item.MusicDiscItem musicDisc)
-                duration = DiscDurationUtil.getDurationTicks(musicDisc.getSound(), MinecraftClient.getInstance().getResourceManager());
+            } else {
+                duration = 0;
+                if (disc.getItem() instanceof net.minecraft.item.MusicDiscItem musicDisc)
+                    duration = DiscDurationUtil.getDurationTicks(musicDisc.getSound(), MinecraftClient.getInstance().getResourceManager());
+            }
             //?}
             sendAction(handler.getBlockPos(), ModPackets.NEXT, duration);
         }).dimensions(x + 115, y + 30, 16, 16).build());

@@ -20,6 +20,7 @@ version = "${project.mod_version}+${mcVersion}"
 group = project.maven_group
 
 repositories {
+    maven { url "https://api.modrinth.com/maven" }
 }
 
 fabricApi {
@@ -28,11 +29,28 @@ fabricApi {
 	}
 }
 
+// Latest AudioPlayer version per MC version (soft dependency — compile-only, not bundled).
+def apVersions = [
+	'1.19.4': 'fabric-1.19.4-1.8.9',
+	'1.20.1': 'fabric-1.20.1-1.13.2',
+	'1.20.4': 'fabric-1.20.4-1.10.2',
+	'1.20.6': 'fabric-1.20.6-1.10.2',
+	'1.21.1': 'fabric-1.21.1-1.13.2',
+	'1.21.4': 'fabric-1.21.4-1.13.2',
+]
+
 dependencies {
 	minecraft "com.mojang:minecraft:${mcVersion}"
 	mappings "net.fabricmc:yarn:${deps.yarn}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${deps.fapi}"
+
+	def apVersion = apVersions[mcVersion]
+	if (apVersion) {
+		// modImplementation so Loom remaps the jar to Yarn; not bundled since we don't use `include`.
+		// At runtime AudioPlayer must be separately installed (declared in fabric.mod.json `suggests`).
+		modImplementation "maven.modrinth:audioplayer:${apVersion}"
+	}
 }
 
 // Per-version resource overrides. Data-pack folders/formats changed across MC
