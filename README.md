@@ -60,6 +60,23 @@ All builds are Fabric and require [Fabric API](https://modrinth.com/mod/fabric-a
 
 ---
 
+## AudioPlayer compatibility
+
+JukeboxPlus works with [AudioPlayer](https://modrinth.com/mod/audioplayer) custom MP3/WAV discs out of the box — no config needed.
+
+**Required mods for custom audio to play:**
+
+| Mod | Why |
+|---|---|
+| [AudioPlayer](https://modrinth.com/mod/audioplayer) | Attaches your custom audio file to a disc item |
+| [Simple Voice Chat](https://modrinth.com/mod/simple-voice-chat) | AudioPlayer uses it for the actual audio streaming |
+
+Without Simple Voice Chat installed, AudioPlayer discs are still recognized and won't break anything — but no audio will play and the jukebox will wait on that disc until you skip manually.
+
+AudioPlayer streaming requires **Minecraft 1.20.1+**.
+
+---
+
 ## Issues & Suggestions
 
 Found a bug or have an idea? [Open an issue on GitHub](https://github.com/kytxii/JukeboxPlus/issues).

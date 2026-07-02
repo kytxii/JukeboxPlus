@@ -18,6 +18,7 @@ public class DiscCompat {
 
     /** Is this stack a playable music disc? */
     public static boolean isDisc(ItemStack stack) {
+        if (AudioPlayerCompat.LOADED && AudioPlayerCompat.isAudioDisc(stack)) return true;
         //? if >=1.21 {
         /*return stack.contains(net.minecraft.component.DataComponentTypes.JUKEBOX_PLAYABLE);
         *///?} else {
@@ -32,6 +33,9 @@ public class DiscCompat {
      * ResourceManager), so this returns 0 there and is simply not called.
      */
     public static int getDurationTicks(World world, ItemStack stack) {
+        // AudioPlayer discs have unknown duration — return 0 so the tick loop never
+        // triggers end-of-disc by tick count; isChannelStopped() handles it instead.
+        if (AudioPlayerCompat.LOADED && AudioPlayerCompat.isAudioDisc(stack)) return 0;
         //? if >=1.21 {
         /*return net.minecraft.block.jukebox.JukeboxSong.getSongEntryFromStack(world.getRegistryManager(), stack)
             .map(entry -> entry.value().getLengthInTicks())
@@ -43,6 +47,10 @@ public class DiscCompat {
 
     /** Start the disc's sound at pos. */
     public static void play(World world, BlockPos pos, ItemStack disc) {
+        if (AudioPlayerCompat.LOADED && AudioPlayerCompat.isAudioDisc(disc)) {
+            AudioPlayerCompat.play(world, pos, disc);
+            return;
+        }
         //? if >=1.21 {
         /*net.minecraft.block.jukebox.JukeboxSong.getSongEntryFromStack(world.getRegistryManager(), disc)
             .ifPresent(entry -> world.playSound(null, pos, entry.value().soundEvent().value(),
@@ -54,6 +62,8 @@ public class DiscCompat {
 
     /** Stop any record currently playing at pos. */
     public static void stop(World world, BlockPos pos) {
+        // Always attempt to stop an AP channel — no-op if none is playing here.
+        if (AudioPlayerCompat.LOADED) AudioPlayerCompat.stop(pos);
         //? if >=1.21 {
         /*if (world instanceof net.minecraft.server.world.ServerWorld serverWorld) {
             net.minecraft.network.packet.s2c.play.StopSoundS2CPacket packet =
