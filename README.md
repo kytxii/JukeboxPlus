@@ -73,7 +73,7 @@ JukeboxPlus works with [AudioPlayer](https://modrinth.com/mod/audioplayer) custo
 
 Without Simple Voice Chat installed, AudioPlayer discs are still recognized and won't break anything — but no audio will play and the jukebox will wait on that disc until you skip manually.
 
-AudioPlayer streaming requires **Minecraft 1.20.1+**.
+AudioPlayer streaming requires **Minecraft 1.20.4+**.
 
 ---
 
